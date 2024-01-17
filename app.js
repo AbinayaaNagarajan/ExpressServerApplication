@@ -3,6 +3,33 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 3000;
 
+
+// Middleware for Data Structuring
+const structureDataMiddleware = (req, res, next) => {
+  console.log('Executing structureDataMiddleware');
+    req.data = {
+      users: [{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }, {id: 3, name: 'Alice'}, {id: 4, name: 'Bobby'}],
+      posts: [{ title: '1', content: '1a' }, { title: '2', content: '2a' }, { title: '3', content: '3a' }, { title: '4', content: '4a' }],
+    };
+    next();
+};
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log('Request:', req.method, req.url);
+  next();
+});
+
+// Middleware for handling JSON
+app.use(express.json());
+
+
+// Data Categories Middleware
+app.use(structureDataMiddleware);
+
+
    // Third-party Node package
 // Use dynamic import for 'node-fetch'
 import('node-fetch').then(async (module) => {
@@ -52,17 +79,6 @@ const validateVersionMiddleware = (req, res, next) => {
   });
 
 
-// Middleware for Data Structuring
-const structureDataMiddleware = (req, res, next) => {
-    req.data = {
-      users: [{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }, {id: 3, name: 'Alice'}],
-      posts: [{ title: '1', content: '1a' }, { title: '2', content: '2a' }, { title: '3', content: '3a' }],
-    };
-    next();
-};
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 
 // Route to render the user view as JSON
@@ -88,16 +104,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
-// Data Categories Middleware
-app.use(structureDataMiddleware);
+
 
 // Middleware Usage
 app.use(customMiddleware1);
 app.use(customMiddleware2);
 
-app.get('/user-view', (req, res) => {
-    res.json({ users: req.data.users });
-  });
+// app.get('/user-view', (req, res) => {
+//     res.json({ users: req.data.users });
+//   });
   
 // Form within a rendered view
 app.get('/user-form', (req, res) => {
